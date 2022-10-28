@@ -1,11 +1,13 @@
-import React, {useState, useRef} from "react";
+import React, {useState} from "react";
 // import Counter from "./components/Counter";
 // import ClassCounter from "./components/ClassCounter";
 import './styles/App.css'
 // import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
-import MyButton from "./components/UI/button/MyButton";
-import MyInput from "./components/UI/Input/MyInput";
+// import MyButton from "./components/UI/button/MyButton";
+// import MyInput from "./components/UI/Input/MyInput";
+import PostForm from "./components/PostForm";
+import MySelect from "./components/UI/select/MySelect";
 
 
 function App() {
@@ -16,41 +18,43 @@ function App() {
         {id:4, title: 'Javascript 4', body:'Description'}
     ])
 
-    const [title, setTitle] = useState('')
-    const [body, setBody] = useState('')
+    const [selectedSort, setSelectedSort] = useState('')
 
-    function addNewPost(event) {
-        event.preventDefault();
-        const newPost = {
-            id: Date.now(),
-            title,
-            body
-        };
-        setPosts([...posts, newPost]);
-        setTitle('');
-        setBody('');
+    function createPost(newPost) {
+        setPosts([...posts, newPost])
+    }
+
+    function removePost(post) {
+        setPosts(posts.filter(p => p.id !== post.id))
+    }
+
+    function sortPosts (sort) {
+        setSelectedSort(sort)
+        console.log(sort)
+        setPosts([...posts].sort((a,b) => a[sort].localeCompare(b[sort])))
     }
 
     return (
     <div className="App">
-        <form>
-            {/*Управляемый компонент*/}
-            <MyInput
-                value={title}
-                type="text"
-                onChange={(e)=>setTitle(e.target.value)}
-                placeholder={"Название поста"}
+        <PostForm create={createPost}/>
+        <hr style={{margin: '15px 0'}}/>
+        <div>
+            <MySelect
+                value={selectedSort}
+                onChange={sortPosts}
+                defaultValue="Сортировка"
+                options={[
+                    {value: 'title', name: 'По названию'},
+                    {value: 'body', name: 'По описанию'},
+                ]}
             />
-            {/*Неуправляемый компонент*/}
-            <MyInput
-                value={body}
-                type="text"
-                onChange={(e)=>setBody(e.target.value)}
-                placeholder={"Описание поста"}
-            />
-            <MyButton onClick={addNewPost}>Создать пост</MyButton>
-        </form>
-        <PostList posts={posts} title={"Javascript"}/>
+        </div>
+        {
+            posts.length > 0
+            ? <PostList remove={removePost} posts={posts} title={"Javascript posts"}/>
+            : <h1 style={{textAlign: 'center'}}>Посты не найдены</h1>
+        }
+
     </div>
   );
 }
