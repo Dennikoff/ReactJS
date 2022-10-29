@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 // import Counter from "./components/Counter";
 // import ClassCounter from "./components/ClassCounter";
 import './styles/App.css'
@@ -8,55 +8,51 @@ import PostList from "./components/PostList";
 // import MyInput from "./components/UI/Input/MyInput";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import MyInput from "./components/UI/Input/MyInput";
+import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/MyModal/MyModal";
 
 
 function App() {
     const [posts, setPosts] = useState([
-        {id:1, title: 'Javascript', body:'Description'},
-        {id:2, title: 'Javascript 2', body:'Description'},
-        {id:3, title: 'Javascript 3', body:'Description'},
-        {id:4, title: 'Javascript 4', body:'Description'}
+        {id: 1, title: '1', body: 'g'},
+        {id: 2, title: '5', body: 'c'},
+        {id: 3, title: '2', body: 'a'},
+        {id: 4, title: 'f', body: 'b'}
     ])
 
-    const [selectedSort, setSelectedSort] = useState('')
+    const [filter, setFilter] = useState({sort: '', query: ''})
+
+    const sortedPosts = useMemo(() => {
+        if (filter.sort) {
+            return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]));
+        } else {
+            return posts;
+        }
+    }, [filter.sort, posts]);
+
+    const sortedAndSearchedPosts = useMemo(() => {
+        return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
+    }, [filter.query, sortedPosts])
 
     function createPost(newPost) {
-        setPosts([...posts, newPost])
+        setPosts([...posts, newPost]);
     }
 
     function removePost(post) {
         setPosts(posts.filter(p => p.id !== post.id))
     }
 
-    function sortPosts (sort) {
-        setSelectedSort(sort)
-        console.log(sort)
-        setPosts([...posts].sort((a,b) => a[sort].localeCompare(b[sort])))
-    }
-
     return (
-    <div className="App">
-        <PostForm create={createPost}/>
-        <hr style={{margin: '15px 0'}}/>
-        <div>
-            <MySelect
-                value={selectedSort}
-                onChange={sortPosts}
-                defaultValue="Сортировка"
-                options={[
-                    {value: 'title', name: 'По названию'},
-                    {value: 'body', name: 'По описанию'},
-                ]}
-            />
-        </div>
-        {
-            posts.length > 0
-            ? <PostList remove={removePost} posts={posts} title={"Javascript posts"}/>
-            : <h1 style={{textAlign: 'center'}}>Посты не найдены</h1>
-        }
+        <div className="App">
+            <MyModal></MyModal>
+            <PostForm create={createPost}/>
+            <hr style={{margin: '15px 0'}}/>
+            <PostFilter filter={filter} setFilter={setFilter}/>
+            <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Javascript posts"}/>
 
-    </div>
-  );
+        </div>
+    );
 }
 
 export default App;
