@@ -12,31 +12,16 @@ import MyInput from "./components/UI/Input/MyInput";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/MyModal/MyModal";
 import MyButton from "./components/UI/button/MyButton";
+import {usePosts} from "./hooks/usePosts";
+import {queries} from "@testing-library/react";
 
 
 function App() {
-    const [posts, setPosts] = useState([
-        {id: 1, title: '1', body: 'g'},
-        {id: 2, title: '5', body: 'c'},
-        {id: 3, title: '2', body: 'a'},
-        {id: 4, title: 'f', body: 'b'}
-    ])
+    const [posts, setPosts] = useState([])
 
     const [filter, setFilter] = useState({sort: '', query: ''})
-
     const [modalVisible, setModalVisible] = useState(false)
-
-    const sortedPosts = useMemo(() => {
-        if (filter.sort) {
-            return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]));
-        } else {
-            return posts;
-        }
-    }, [filter.sort, posts]);
-
-    const sortedAndSearchedPosts = useMemo(() => {
-        return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
-    }, [filter.query, sortedPosts])
+    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 
     function createPost(newPost) {
         setPosts([...posts, newPost]);
@@ -66,11 +51,3 @@ function App() {
 }
 
 export default App;
-
-// <PostList posts={posts2} title={"Python"}/>
-// const [posts2, setPosts2] = useState([
-//     {id:1, title: 'Python', body:'Description'},
-//     {id:2, title: 'Python 2', body:'Description'},
-//     {id:3, title: 'Python 3', body:'Description'},
-//     {id:4, title: 'Python 4', body:'Description'}
-// ])
