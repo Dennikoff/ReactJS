@@ -14,6 +14,7 @@ import MyModal from "./components/UI/MyModal/MyModal";
 import MyButton from "./components/UI/button/MyButton";
 import {usePosts} from "./hooks/usePosts";
 import {queries} from "@testing-library/react";
+import axios from "axios";
 
 
 function App() {
@@ -28,12 +29,19 @@ function App() {
         setModalVisible(false)
     }
 
+    async function fetchPosts() {
+        const resonse = await axios.get('https://jsonplaceholder.typicode.com/posts')
+        setPosts(resonse.data)
+    }
+
     function removePost(post) {
         setPosts(posts.filter(p => p.id !== post.id))
     }
 
     return (
         <div className="App">
+            <MyButton onClick={fetchPosts}>Get posts</MyButton>
+            <br/>
             <MyButton style={{marginTop: '15px'}}
                 onClick={() => setModalVisible(true)}>
                 Создать пост
