@@ -19,30 +19,39 @@ import PostService from "./API/PostService";
 // import {wait} from "@testing-library/user-event/dist/utils";
 import Loader from './components/UI/Loader/Loader'
 import {useFetching} from "./hooks/useFetching";
+import {getPageCount, getPagesArray} from "./utils/pages";
 
 
 function App() {
     const [posts, setPosts] = useState([])
     const [filter, setFilter] = useState({sort: '', query: ''})
     const [modalVisible, setModalVisible] = useState(false)
+    const [limit] = useState(10);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0)
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
+
+
+
+    let pagesArray = getPagesArray(totalPages);
+
+
     const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
-        const posts = await PostService.getAll()
-        setPosts(posts)
+        const response = await PostService.getAll(limit, page)
+        setPosts(response.data)
+        const totalCount  = response.headers['x-total-count']
+        setTotalPages(getPageCount(totalCount, limit))
     })
 
     //one time
     useEffect(() => {
         fetchPosts();
-    }, [])
+    }, [page])
 
     function createPost(newPost) {
         setPosts([...posts, newPost]);
         setModalVisible(false)
     }
-
-
-
 
     function removePost(post) {
         setPosts(posts.filter(p => p.id !== post.id))
@@ -74,6 +83,16 @@ function App() {
                   </div>
                 : <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Javascript posts"}/>
             }
+            <div className="page__wrapper">
+                {pagesArray.map(p=>
+                   <span
+                       onClick={() => setPage(p)}
+                       key={p}
+                       className={page === p ? 'page page__current': 'page'}
+                   >{p}</span>
+                )}
+            </div>
+
 
 
         </div>
