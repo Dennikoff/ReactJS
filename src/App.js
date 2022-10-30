@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 // import Counter from "./components/Counter";
 // import ClassCounter from "./components/ClassCounter";
 import './styles/App.css'
@@ -7,21 +7,22 @@ import PostList from "./components/PostList";
 // import MyButton from "./components/UI/button/MyButton";
 // import MyInput from "./components/UI/Input/MyInput";
 import PostForm from "./components/PostForm";
-import MySelect from "./components/UI/select/MySelect";
-import MyInput from "./components/UI/Input/MyInput";
+// import MySelect from "./components/UI/select/MySelect";
+// import MyInput from "./components/UI/Input/MyInput";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/MyModal/MyModal";
 import MyButton from "./components/UI/button/MyButton";
 import {usePosts} from "./hooks/usePosts";
-import {queries} from "@testing-library/react";
-import axios from "axios";
+// import {queries} from "@testing-library/react";
+// import axios from "axios";
 import PostService from "./API/PostService";
-import {wait} from "@testing-library/user-event/dist/utils";
+// import {wait} from "@testing-library/user-event/dist/utils";
+import Loader from './components/UI/Loader/Loader'
 
 
 function App() {
+    const [isPostsLoading, setIsPostsLoading] = useState(false)
     const [posts, setPosts] = useState([])
-
     const [filter, setFilter] = useState({sort: '', query: ''})
     const [modalVisible, setModalVisible] = useState(false)
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
@@ -37,8 +38,12 @@ function App() {
     }
 
     async function fetchPosts() {
-        const posts = await PostService.getAll()
-        setPosts(posts)
+        setIsPostsLoading(true)
+        setTimeout(async () => {
+            const posts = await PostService.getAll()
+            setIsPostsLoading(false)
+            setPosts(posts)
+            }, 1000)
     }
 
     function removePost(post) {
@@ -56,8 +61,19 @@ function App() {
             </MyModal>
 
             <hr style={{margin: '10px 0'}}/>
-            <PostFilter filter={filter} setFilter={setFilter}/>
-            <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Javascript posts"}/>
+            <PostFilter
+                filter={filter}
+                setFilter={setFilter}/>
+            {isPostsLoading
+                ? <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '50px'}}>
+                    <Loader/>
+                  </div>
+                : <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Javascript posts"}/>
+            }
+
 
         </div>
     );
