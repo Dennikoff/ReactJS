@@ -10,6 +10,11 @@
     align-items: center;
 }
 
+.post__btns {
+    display: flex;
+    padding-inline: 20px;
+}
+
 .title {
    text-align: center;
 }
