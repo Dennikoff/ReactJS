@@ -30,7 +30,6 @@ function Posts() {
         setTotalPages(getPageCount(totalCount, limit))
     })
 
-    //one time
     useEffect(() => {
         fetchPosts();
     }, [page])
